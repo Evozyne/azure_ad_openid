@@ -22,11 +22,23 @@ defmodule AzureADOpenId.Verify.Token do
 
   def access_token!(access_token, config) do
     aud = config[:aud]
-    claims = verify_token(access_token, config, aud)
+    {:ok, claims} = verify_token(access_token, config, aud)
 
     claims
     |> Claims.common!(config)
     |> Claims.access_token!(config)
+  end
+
+  def access_token(%{"access_token" => access_token}, config) do
+    access_token(access_token, config)
+  end
+
+  def access_token(access_token, config) do
+    aud = config[:aud]
+    {:ok, claims} = verify_token(access_token, config, aud)
+
+    claims
+    |> Claims.access_token(config)
   end
 
   defp verify_token(token, config, aud) do
@@ -41,12 +53,5 @@ defmodule AzureADOpenId.Verify.Token do
 
     token
     |> JWT.verify(opts)
-    |> case do
-      {:ok, map} ->
-        map
-
-      {:error, failed_claims} ->
-        raise("JWT verification failed. Failed claims: #{inspect(failed_claims)}")
-    end
   end
 end

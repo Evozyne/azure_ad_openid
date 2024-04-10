@@ -33,6 +33,14 @@ defmodule AzureADOpenId do
   end
 
   @doc """
+  Verify an access token without raising.
+  """
+  def verify_access_token(access_token, config \\ nil) do
+    config = config || get_config()
+    Verify.Token.access_token(access_token, config)
+  end
+
+  @doc """
   Get a redirect url for authorization using Azure Active Directory login.
   """
   @spec authorize_url!(uri, config) :: uri

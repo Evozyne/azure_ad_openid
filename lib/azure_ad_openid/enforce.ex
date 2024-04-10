@@ -6,6 +6,22 @@ defmodule AzureADOpenId.Enforce do
   Useful for enforcing claims validation and destructuring :ok atoms without breaking the pipe.
   """
 
+  def true?(final, []) do
+    final
+    |> Enum.reduce({true, []}, fn
+      {:ok, _condition}, {check, errors} -> {check, errors}
+      {:error, condition}, {check, errors} -> {check and false, [condition | errors]}
+    end)
+  end
+
+  def true?(final, [{head, condition_name} | rest]) do
+    case head do
+      true -> List.insert_at(final, -1, {:ok, condition_name})
+      false -> List.insert_at(final, -1, {:error, condition_name})
+    end
+    |> true?(rest)
+  end
+
   def true!([], _), do: true
 
   def true!([{head, condition_name} | rest], error) do
