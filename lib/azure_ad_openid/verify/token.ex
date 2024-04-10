@@ -8,7 +8,7 @@ defmodule AzureADOpenId.Verify.Token do
 
   def id_token!(id_token, code, config) do
     aud = config[:aud] || config[:client_id]
-    claims = verify_token(id_token, config, aud)
+    {:ok, claims} = verify_token(id_token, config, aud)
 
     claims
     |> Claims.code_hash!(code)
